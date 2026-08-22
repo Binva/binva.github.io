@@ -617,10 +617,8 @@ export default function BinvaApp() {
       }}
         className={`binessa-sidebar ${navOpen ? "force-open" : ""}`}
       >
-               <div style={{ display: "flex", alignItems: "center", gap: 9, padding: "0 8px 24px", }}>
-                <img src="/logo.png.jpg" alt="Binva" style={{
-            width: 28, height: 28, borderRadius: 7, objectFit: "cover",
-          }} />
+                        <img src="/logo.png.jpg" alt="Binva" style={{ width: 28, height: 28, borderRadius: 7, objectFit: "cover" }} />
+          <span style={{ fontSize: 16, fontWeight: 700, letterSpacing: -0.3 }}>Binva</span>
 
           <span style={{ fontSize: 16, fontWeight: 700, letterSpacing: -0.3 }}>Binva</span>
         </div>
@@ -668,7 +666,7 @@ export default function BinvaApp() {
         alignItems: "center", justifyContent: "space-between",
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <div style={{ width: 22, height: 22, borderRadius: 6, background: `linear-gradient(135deg, ${T.purple}, ${T.purpleDeep})` }} />
+                   <img src="/logo.png.jpg" alt="Binva" style={{ width: 24, height: 24, borderRadius: 6, objectFit: "cover" }} />
           <span style={{ fontSize: 15, fontWeight: 700 }}>Binva</span>
         </div>
         <button onClick={() => setNavOpen(!navOpen)} style={{ background: "none", border: "none", color: T.text }}>
