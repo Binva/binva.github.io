@@ -347,7 +347,10 @@ function Dashboard({ goTo }) {
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 22, flexWrap: "wrap", gap: 16 }}>
         <div>
-          <div style={{ fontSize: 22, fontWeight: 600, color: T.text, letterSpacing: -0.3 }}>Good evening, John</div>
+                  <div style={{ fontSize: 22, fontWeight: 600, letterSpacing: -0.3 }}>
+            <span style={{ color: "#C9B8F5", fontWeight: 500 }}>Welcome to </span>
+            <span style={{ color: "#FFFFFF", fontFamily: "'Playfair Display', serif", fontWeight: 700 }}>Binva</span>
+          </div>
           <div style={{ fontSize: 13, color: T.textMuted, marginTop: 4 }}>
             {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
           </div>
