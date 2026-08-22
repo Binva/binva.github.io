@@ -681,12 +681,35 @@ export default function BinvaApp() {
 
       <style>{`
         @media (max-width: 860px) {
-          .binessa-sidebar { display: none !important; }
-          .binessa-sidebar.force-open { display: flex !important; position: fixed !important; z-index: 30; }
+          .binessa-sidebar {
+            position: fixed !important;
+            top: 0;
+            right: 0;
+            left: auto !important;
+            height: 100vh;
+            transform: translateX(100%);
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 30;
+            display: flex !important;
+            border-left: 1px solid #211C2E;
+            border-right: none;
+          }
+          .binessa-sidebar.force-open {
+            transform: translateX(0);
+          }
           .binessa-mobile-bar { display: flex !important; }
           .binessa-main { padding: 76px 16px 24px !important; }
+          .binessa-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 25;
+          }
+          .binessa-overlay.show { display: block; }
         }
       `}</style>
+
     </div>
   );
 }
