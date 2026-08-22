@@ -674,7 +674,8 @@ export default function BinvaApp() {
           {navOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
       </div>
-
+      
+      <div className={`binessa-overlay ${navOpen ? "show" : ""}`} onClick={() => setNavOpen(false)} />
       <div style={{ flex: 1, padding: "28px 32px", minWidth: 0 }} className="binessa-main">
         {renderView()}
       </div>
