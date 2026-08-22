@@ -618,7 +618,7 @@ export default function BinvaApp() {
         className={`binessa-sidebar ${navOpen ? "force-open" : ""}`}
       >
                <div style={{ display: "flex", alignItems: "center", gap: 9, padding: "0 8px 24px", }}>
-          <img src="/logo.png" alt="Binva" style={{
+                <img src="/logo.png.jpg" alt="Binva" style={{
             width: 28, height: 28, borderRadius: 7, objectFit: "cover",
           }} />
 
