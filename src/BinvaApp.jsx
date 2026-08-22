@@ -347,9 +347,9 @@ function Dashboard({ goTo }) {
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 22, flexWrap: "wrap", gap: 16 }}>
         <div>
-                  <div style={{ fontSize: 22, fontWeight: 600, letterSpacing: -0.3 }}>
-            <span style={{ color: "#C9B8F5", fontWeight: 500 }}>Welcome to </span>
-            <span style={{ color: "#FFFFFF", fontFamily: "'Playfair Display', serif", fontWeight: 700 }}>Binva</span>
+          <div style={{ fontSize: 22, fontWeight: 600, letterSpacing: -0.3, display: "flex", alignItems: "baseline", gap: 6 }}>
+            <span style={{ color: "#C9B8F5", fontWeight: 500 }}>Welcome to</span>
+            <span style={{ color: "#FFFFFF", fontFamily: "'Monsieur La Doulaise', cursive", fontSize: 38 }}>Binva</span>
           </div>
           <div style={{ fontSize: 13, color: T.textMuted, marginTop: 4 }}>
             {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
@@ -615,13 +615,12 @@ export default function BinvaApp() {
         background: T.surface, padding: "20px 14px", position: "sticky", top: 0, height: "100vh",
         display: "flex", flexDirection: "column",
       }}
-                className={`binessa-sidebar ${navOpen ? "force-open" : ""}`}
+        className={`binessa-sidebar ${navOpen ? "force-open" : ""}`}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 9, padding: "0 8px 24px", }}>
-          <img src="/logo.png.jpg" alt="Binva" style={{ width: 28, height: 28, borderRadius: 7, objectFit: "cover" }} />
-          <span style={{ fontSize: 16, fontWeight: 700, letterSpacing: -0.3 }}>Binva</span>
+          <img src="/logo.png.jpg" alt="Binva" style={{ width: 32, height: 32, borderRadius: 7, objectFit: "cover" }} />
+          <span style={{ fontSize: 16, fontWeight: 700, letterSpacing: -0.3, color: T.text }}>Binva</span>
         </div>
-
         <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
           {NAV.map(item => {
             const Icon = item.icon;
@@ -665,16 +664,16 @@ export default function BinvaApp() {
         background: T.surface, borderBottom: `1px solid ${T.borderSoft}`, padding: "12px 16px",
         alignItems: "center", justifyContent: "space-between",
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                   <img src="/logo.png.jpg" alt="Binva" style={{ width: 24, height: 24, borderRadius: 6, objectFit: "cover" }} />
-          <span style={{ fontSize: 15, fontWeight: 700 }}>Binva</span>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <span style={{ fontSize: 26, fontFamily: "'Monsieur La Doulaise', cursive", color: T.purple }}>Binva</span>
         </div>
         <button onClick={() => setNavOpen(!navOpen)} style={{ background: "none", border: "none", color: T.text }}>
           {navOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
       </div>
-      
+
       <div className={`binessa-overlay ${navOpen ? "show" : ""}`} onClick={() => setNavOpen(false)} />
+
       <div style={{ flex: 1, padding: "28px 32px", minWidth: 0 }} className="binessa-main">
         {renderView()}
       </div>
@@ -709,7 +708,6 @@ export default function BinvaApp() {
           .binessa-overlay.show { display: block; }
         }
       `}</style>
-
     </div>
   );
 }
