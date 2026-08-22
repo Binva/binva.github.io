@@ -615,13 +615,13 @@ export default function BinvaApp() {
         background: T.surface, padding: "20px 14px", position: "sticky", top: 0, height: "100vh",
         display: "flex", flexDirection: "column",
       }}
-        className={`binessa-sidebar ${navOpen ? "force-open" : ""}`}
+                className={`binessa-sidebar ${navOpen ? "force-open" : ""}`}
       >
-                        <img src="/logo.png.jpg" alt="Binva" style={{ width: 28, height: 28, borderRadius: 7, objectFit: "cover" }} />
-          <span style={{ fontSize: 16, fontWeight: 700, letterSpacing: -0.3 }}>Binva</span>
-
+        <div style={{ display: "flex", alignItems: "center", gap: 9, padding: "0 8px 24px", }}>
+          <img src="/logo.png.jpg" alt="Binva" style={{ width: 28, height: 28, borderRadius: 7, objectFit: "cover" }} />
           <span style={{ fontSize: 16, fontWeight: 700, letterSpacing: -0.3 }}>Binva</span>
         </div>
+
         <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
           {NAV.map(item => {
             const Icon = item.icon;
