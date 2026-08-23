@@ -617,9 +617,10 @@ export default function BinvaApp() {
       }}
         className={`binessa-sidebar ${navOpen ? "force-open" : ""}`}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 9, padding: "0 8px 24px", }}>
-          <img src="/logo.png.jpg" alt="Binva" style={{ width: 32, height: 32, borderRadius: 7, objectFit: "cover" }} />
-          <span style={{ fontSize: 16, fontWeight: 700, letterSpacing: -0.3, color: T.text }}>Binva</span>
+              className={`binessa-sidebar ${navOpen ? "force-open" : ""}`}
+      >
+        <div style={{ display: "flex", flexDirection: "column", gap: 2, marginTop: 8 }}>
+
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
           {NAV.map(item => {
