@@ -617,12 +617,7 @@ export default function BinvaApp() {
       }}
         className={`binessa-sidebar ${navOpen ? "force-open" : ""}`}
       >
-              className={`binessa-sidebar ${navOpen ? "force-open" : ""}`}
-      >
         <div style={{ display: "flex", flexDirection: "column", gap: 2, marginTop: 8 }}>
-
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
           {NAV.map(item => {
             const Icon = item.icon;
             const active = view === item.id;
