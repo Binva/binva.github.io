@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar, Cell
@@ -7,8 +7,9 @@ import {
   LayoutGrid, Wallet, BookOpen, LineChart as LineChartIcon, TrendingUp,
   FileText, Target, Calendar as CalendarIcon, Bell, User, Settings,
   ChevronDown, Plus, ArrowUpRight, ArrowDownRight, Search, Filter,
-  X, ImagePlus, Menu
+  X, ImagePlus, Menu, LogOut
 } from "lucide-react";
+import { supabase } from "./supabaseClient";
 
 const T = {
   bg: "#0B0910",
@@ -581,9 +582,144 @@ function EmptyState({ title }) {
   );
 }
 
+function LoginScreen({ onLoggedIn }) {
+  const [email, setEmail] = useState("");
+  const [code, setCode] = useState("");
+  const [stage, setStage] = useState("email");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const sendCode = async () => {
+    setError("");
+    if (!email || !email.includes("@")) {
+      setError("Please enter a valid email.");
+      return;
+    }
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithOtp({ email });
+    setLoading(false);
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    setStage("code");
+  };
+
+  const verifyCode = async () => {
+    setError("");
+    if (!code) {
+      setError("Please enter the code.");
+      return;
+    }
+    setLoading(true);
+    const { data, error } = await supabase.auth.verifyOtp({
+      email, token: code, type: "email",
+    });
+    setLoading(false);
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    onLoggedIn(data.session);
+  };
+
+  return (
+    <div style={{
+      fontFamily: T.sans, background: T.bg, minHeight: "100vh", color: T.text,
+      display: "flex", alignItems: "center", justifyContent: "center", padding: 20,
+    }}>
+      <div style={{ width: "100%", maxWidth: 360 }}>
+        <div style={{ textAlign: "center", marginBottom: 28 }}>
+          <span style={{ fontSize: 42, fontFamily: "'Monsieur La Doulaise', cursive", color: T.purple }}>Binva</span>
+        </div>
+        <Card style={{ padding: 24 }}>
+          {stage === "email" ? (
+            <>
+              <div style={{ fontSize: 15, fontWeight: 600, color: T.text, marginBottom: 4 }}>Sign in</div>
+              <div style={{ fontSize: 12.5, color: T.textMuted, marginBottom: 18 }}>We'll email you a login code</div>
+              <LabeledInput
+                label="Email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+              />
+              {error && <div style={{ color: T.red, fontSize: 12.5, marginTop: 10 }}>{error}</div>}
+              <button
+                onClick={sendCode}
+                disabled={loading}
+                style={{
+                  marginTop: 16, width: "100%", padding: "11px 20px", borderRadius: 8, border: "none",
+                  background: T.purpleDeep, color: "#fff", fontSize: 14, fontWeight: 600,
+                  cursor: "pointer", opacity: loading ? 0.6 : 1,
+                }}>
+                {loading ? "Sending..." : "Send code"}
+              </button>
+            </>
+          ) : (
+            <>
+              <div style={{ fontSize: 15, fontWeight: 600, color: T.text, marginBottom: 4 }}>Enter your code</div>
+              <div style={{ fontSize: 12.5, color: T.textMuted, marginBottom: 18 }}>Sent to {email}</div>
+              <LabeledInput
+                label="6-digit code"
+                type="text"
+                inputMode="numeric"
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                placeholder="123456"
+              />
+              {error && <div style={{ color: T.red, fontSize: 12.5, marginTop: 10 }}>{error}</div>}
+              <button
+                onClick={verifyCode}
+                disabled={loading}
+                style={{
+                  marginTop: 16, width: "100%", padding: "11px 20px", borderRadius: 8, border: "none",
+                  background: T.purpleDeep, color: "#fff", fontSize: 14, fontWeight: 600,
+                  cursor: "pointer", opacity: loading ? 0.6 : 1,
+                }}>
+                {loading ? "Verifying..." : "Verify & sign in"}
+              </button>
+              <button
+                onClick={() => { setStage("email"); setCode(""); setError(""); }}
+                style={{
+                  marginTop: 10, width: "100%", padding: "9px 20px", borderRadius: 8,
+                  border: `1px solid ${T.border}`, background: "transparent", color: T.textMuted,
+                  fontSize: 13, cursor: "pointer",
+                }}>
+                Use a different email
+              </button>
+            </>
+          )}
+        </Card>
+      </div>
+    </div>
+  );
+}
+
 export default function BinvaApp() {
+  const [session, setSession] = useState(undefined);
   const [view, setView] = useState("dashboard");
   const [navOpen, setNavOpen] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setSession(data.session));
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      setSession(newSession);
+    });
+    return () => listener.subscription.unsubscribe();
+  }, []);
+
+  if (session === undefined) {
+    return (
+      <div style={{ fontFamily: T.sans, background: T.bg, minHeight: "100vh" }} />
+    );
+  }
+
+  if (!session) {
+    return <LoginScreen onLoggedIn={setSession} />;
+  }
+
+  const userEmail = session.user?.email || "";
 
   const renderView = () => {
     switch (view) {
@@ -646,17 +782,25 @@ export default function BinvaApp() {
             </button>
           ))}
           <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 10px 2px" }}>
-            <div style={{ width: 30, height: 30, borderRadius: "50%", background: T.purpleDim, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 600 }}>JD</div>
-            <div>
-              <div style={{ fontSize: 12.5, fontWeight: 600 }}>John Doe</div>
-              <div style={{ fontSize: 11, color: T.textFaint }}>Pro Plan</div>
+            <div style={{ width: 30, height: 30, borderRadius: "50%", background: T.purpleDim, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 600, flexShrink: 0 }}>
+              {userEmail.slice(0, 2).toUpperCase()}
             </div>
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <div style={{ fontSize: 12.5, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{userEmail}</div>
+              <div style={{ fontSize: 11, color: T.textFaint }}>Free Plan</div>
+            </div>
+            <button
+              onClick={() => supabase.auth.signOut()}
+              title="Sign out"
+              style={{ background: "none", border: "none", color: T.textFaint, cursor: "pointer", flexShrink: 0 }}>
+              <LogOut size={15} />
+            </button>
           </div>
         </div>
       </div>
 
       <div className="binessa-mobile-bar" style={{
-        display: "none", position: "fixed", top: 0, left: 0, right: 0, zIndex: 20,
+        display: "none", position: "fixed", top: 0, left: 0, right: 0, zIndex: 35,
         background: T.surface, borderBottom: `1px solid ${T.borderSoft}`, padding: "12px 16px",
         alignItems: "center", justifyContent: "space-between",
       }}>
