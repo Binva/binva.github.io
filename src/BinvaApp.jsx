@@ -664,7 +664,7 @@ export default function BinvaApp() {
           <span style={{ fontSize: 26, fontFamily: "'Monsieur La Doulaise', cursive", color: T.purple }}>Binva</span>
         </div>
         <button onClick={() => setNavOpen(!navOpen)} style={{ background: "none", border: "none", color: T.text }}>
-          {navOpen ? <X size={20} /> : <Menu size={20} />}
+          <Menu size={20} />
         </button>
       </div>
 
