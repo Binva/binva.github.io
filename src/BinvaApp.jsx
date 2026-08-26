@@ -656,17 +656,17 @@ export default function BinvaApp() {
       </div>
 
       <div className="binessa-mobile-bar" style={{
-        display: "none", position: "fixed", top: 0, left: 0, right: 0, zIndex: 35,
+        display: "none", position: "fixed", top: 0, left: 0, right: 0, zIndex: 20,
         background: T.surface, borderBottom: `1px solid ${T.borderSoft}`, padding: "12px 16px",
         alignItems: "center", justifyContent: "space-between",
       }}>
         <div style={{ display: "flex", alignItems: "center" }}>
           <span style={{ fontSize: 26, fontFamily: "'Monsieur La Doulaise', cursive", color: T.purple }}>Binva</span>
-           <button onClick={() => setNavOpen(!navOpen)} style={{ background: "none", border: "none", color: T.text }}>
-          <Menu size={20} />
+        </div>
+        <button onClick={() => setNavOpen(!navOpen)} style={{ background: "none", border: "none", color: T.text }}>
+          {navOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
       </div>
-        </div>
 
       <div className={`binessa-overlay ${navOpen ? "show" : ""}`} onClick={() => setNavOpen(false)} />
 
