@@ -332,7 +332,7 @@ function PageHeader({ title, subtitle, action }) {
   );
 }
 
-function Dashboard({ goTo }) {
+function Dashboard({ goTo, profile }) {
   const [period, setPeriod] = useState("This Month");
   const metrics = [
     { label: "Net P&L", value: "+$4,280", delta: "+8.2%", deltaPositive: true },
@@ -348,9 +348,8 @@ function Dashboard({ goTo }) {
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 22, flexWrap: "wrap", gap: 16 }}>
         <div>
-          <div style={{ fontSize: 22, fontWeight: 600, letterSpacing: -0.3, display: "flex", alignItems: "baseline", gap: 6 }}>
-            <span style={{ color: "#C9B8F5", fontWeight: 500 }}>Welcome to</span>
-            <span style={{ color: "#FFFFFF", fontFamily: "'Monsieur La Doulaise', cursive", fontSize: 38 }}>Binva</span>
+          <div style={{ fontSize: 22, fontWeight: 600, color: T.text, letterSpacing: -0.3 }}>
+            Good evening{profile?.first_name ? `, ${profile.first_name}` : ""}
           </div>
           <div style={{ fontSize: 13, color: T.textMuted, marginTop: 4 }}>
             {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
@@ -696,8 +695,119 @@ function LoginScreen({ onLoggedIn }) {
   );
 }
 
+function OnboardingForm({ session, onComplete }) {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [countryCode, setCountryCode] = useState("+98");
+  const [phone, setPhone] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const submit = async () => {
+    setError("");
+    if (!firstName || !lastName || !phone) {
+      setError("Please fill in all fields.");
+      return;
+    }
+    setLoading(true);
+    const { error } = await supabase.from("profiles").insert({
+      id: session.user.id,
+      first_name: firstName,
+      last_name: lastName,
+      country_code: countryCode,
+      phone: phone,
+    });
+    setLoading(false);
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    onComplete({ first_name: firstName, last_name: lastName, country_code: countryCode, phone });
+  };
+
+  return (
+    <div style={{
+      fontFamily: T.sans, background: T.bg, minHeight: "100vh", color: T.text,
+      display: "flex", alignItems: "center", justifyContent: "center", padding: 20,
+    }}>
+      <div style={{ width: "100%", maxWidth: 380 }}>
+        <div style={{ textAlign: "center", marginBottom: 24 }}>
+          <span style={{ fontSize: 36, fontFamily: "'Monsieur La Doulaise', cursive", color: T.purple }}>Binva</span>
+        </div>
+        <Card style={{ padding: 24 }}>
+          <div style={{ fontSize: 15, fontWeight: 600, color: T.text, marginBottom: 4 }}>Tell us about you</div>
+          <div style={{ fontSize: 12.5, color: T.textMuted, marginBottom: 18 }}>This helps us personalize your account</div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <LabeledInput label="First name" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="John" />
+            <LabeledInput label="Last name" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Doe" />
+            <div style={{ display: "flex", gap: 8 }}>
+              <div style={{ width: 90 }}>
+                <LabeledInput label="Code" value={countryCode} onChange={(e) => setCountryCode(e.target.value)} placeholder="+98" />
+              </div>
+              <div style={{ flex: 1 }}>
+                <LabeledInput label="Phone number" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="912 345 6789" inputMode="tel" />
+              </div>
+            </div>
+          </div>
+
+          {error && <div style={{ color: T.red, fontSize: 12.5, marginTop: 12 }}>{error}</div>}
+
+          <button
+            onClick={submit}
+            disabled={loading}
+            style={{
+              marginTop: 18, width: "100%", padding: "11px 20px", borderRadius: 8, border: "none",
+              background: T.purpleDeep, color: "#fff", fontSize: 14, fontWeight: 600,
+              cursor: "pointer", opacity: loading ? 0.6 : 1,
+            }}>
+            {loading ? "Saving..." : "Continue"}
+          </button>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+function SplashScreen({ onDone }) {
+  useEffect(() => {
+    const t = setTimeout(onDone, 2200);
+    return () => clearTimeout(t);
+  }, [onDone]);
+
+  return (
+    <div style={{
+      position: "fixed", inset: 0, background: T.bg, zIndex: 100,
+      display: "flex", alignItems: "center", justifyContent: "center", padding: 20,
+    }}>
+      <span className="binva-splash-text" style={{
+        fontFamily: "'Monsieur La Doulaise', cursive", color: "#FFFFFF",
+        fontSize: "min(15vw, 68px)", textShadow: "0 6px 24px rgba(0,0,0,0.7)",
+        textAlign: "center", whiteSpace: "nowrap",
+      }}>
+        Welcome to Binva
+      </span>
+      <style>{`
+        .binva-splash-text {
+          opacity: 0;
+          transform: scale(0.82);
+          animation: binvaSplashIn 1.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+        @keyframes binvaSplashIn {
+          0% { opacity: 0; transform: scale(0.8); }
+          60% { opacity: 1; transform: scale(1.05); }
+          100% { opacity: 1; transform: scale(1); }
+        }
+      `}</style>
+    </div>
+  );
+}
+
 export default function BinvaApp() {
   const [session, setSession] = useState(undefined);
+  const [profile, setProfile] = useState(undefined);
+  const [showSplash, setShowSplash] = useState(false);
+  const [appVisible, setAppVisible] = useState(false);
   const [view, setView] = useState("dashboard");
   const [navOpen, setNavOpen] = useState(false);
 
@@ -709,21 +819,62 @@ export default function BinvaApp() {
     return () => listener.subscription.unsubscribe();
   }, []);
 
+  useEffect(() => {
+    if (!session) return;
+    supabase.from("profiles").select("*").eq("id", session.user.id).maybeSingle()
+      .then(({ data }) => setProfile(data || null));
+  }, [session]);
+
+  useEffect(() => {
+    if (profile && !appVisible && !showSplash) {
+      const alreadyShown = sessionStorage.getItem("binva_splash_shown");
+      if (alreadyShown) {
+        setAppVisible(true);
+      } else {
+        setShowSplash(true);
+      }
+    }
+  }, [profile]);
+
+  const finishSplash = () => {
+    sessionStorage.setItem("binva_splash_shown", "1");
+    setShowSplash(false);
+    setAppVisible(true);
+  };
+
+  const handleOnboardingComplete = (newProfile) => {
+    setProfile(newProfile);
+  };
+
   if (session === undefined) {
-    return (
-      <div style={{ fontFamily: T.sans, background: T.bg, minHeight: "100vh" }} />
-    );
+    return <div style={{ fontFamily: T.sans, background: T.bg, minHeight: "100vh" }} />;
   }
 
   if (!session) {
     return <LoginScreen onLoggedIn={setSession} />;
   }
 
+  if (profile === undefined) {
+    return <div style={{ fontFamily: T.sans, background: T.bg, minHeight: "100vh" }} />;
+  }
+
+  if (profile === null) {
+    return <OnboardingForm session={session} onComplete={handleOnboardingComplete} />;
+  }
+
+  if (showSplash) {
+    return <SplashScreen onDone={finishSplash} />;
+  }
+
+  if (!appVisible) {
+    return <div style={{ fontFamily: T.sans, background: T.bg, minHeight: "100vh" }} />;
+  }
+
   const userEmail = session.user?.email || "";
 
   const renderView = () => {
     switch (view) {
-      case "dashboard": return <Dashboard goTo={setView} />;
+      case "dashboard": return <Dashboard goTo={setView} profile={profile} />;
       case "trades": return <AllTradesView />;
       case "newtrade": return <NewTradeView />;
       case "playbook": return <PlaybookView />;
@@ -737,13 +888,17 @@ export default function BinvaApp() {
   return (
     <div style={{
       fontFamily: T.sans, background: T.bg, minHeight: "100vh", color: T.text,
-      display: "flex",
+      display: "flex", animation: "binvaFadeIn 0.6s ease forwards",
     }}>
       <style>{`
         * { box-sizing: border-box; }
         input:focus, select:focus { border-color: ${T.purple} !important; }
         ::-webkit-scrollbar { height: 8px; width: 8px; }
         ::-webkit-scrollbar-thumb { background: ${T.surface3}; border-radius: 8px; }
+        @keyframes binvaFadeIn {
+          0% { opacity: 0; }
+          100% { opacity: 1; }
+        }
       `}</style>
 
       <div style={{
@@ -783,14 +938,16 @@ export default function BinvaApp() {
           ))}
           <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 10px 2px" }}>
             <div style={{ width: 30, height: 30, borderRadius: "50%", background: T.purpleDim, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 600, flexShrink: 0 }}>
-              {userEmail.slice(0, 2).toUpperCase()}
+              {((profile?.first_name?.[0] || "") + (profile?.last_name?.[0] || "")).toUpperCase() || userEmail.slice(0, 2).toUpperCase()}
             </div>
             <div style={{ minWidth: 0, flex: 1 }}>
-              <div style={{ fontSize: 12.5, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{userEmail}</div>
-              <div style={{ fontSize: 11, color: T.textFaint }}>Free Plan</div>
+              <div style={{ fontSize: 12.5, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                {profile?.first_name ? `${profile.first_name} ${profile.last_name}` : userEmail}
+              </div>
+              <div style={{ fontSize: 11, color: T.textFaint, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{userEmail}</div>
             </div>
             <button
-              onClick={() => supabase.auth.signOut()}
+              onClick={() => { sessionStorage.removeItem("binva_splash_shown"); supabase.auth.signOut(); }}
               title="Sign out"
               style={{ background: "none", border: "none", color: T.textFaint, cursor: "pointer", flexShrink: 0 }}>
               <LogOut size={15} />
